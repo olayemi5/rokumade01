@@ -18,6 +18,8 @@ sub Init()
     ' observe rowItemFocused so we can know when another item of rowList will be focused
     m.rowList.ObserveField("rowItemFocused", "OnItemFocused")
     m.rowList.ObserveField("rowItemSelected", "onRowItemSelectedChanged")
+    m.videoNode.ObserveField("state", "onVideoStateChanged")
+
 end sub
 
 sub OnItemFocused() ' invoked when another item is focused
@@ -69,19 +71,33 @@ sub onRowItemSelectedChanged()
     m.videoNode.control = "play"
 end sub
 
+sub ReturnToGrid()
+    m.videoNode.visible = false
+    videocontent = createObject("RoSGNode", "ContentNode")
+    m.videoNode.content = videocontent
+    m.rowList.SetFocus(true)
+end sub
+
 function onKeyEvent(key as String, press as Boolean) as Boolean
   handled = false
   if press then
     if (key = "back") then
-      m.videoNode.visible = false
-      videocontent = createObject("RoSGNode", "ContentNode")
-      m.videoNode.content = videocontent
-      m.rowList.SetFocus(true)
+      ReturnToGrid()
       handled = true
     else
       handled = true
     end if
   end if
   return handled
+end function
+
+function onVideoStateChanged(event as Object)
+    newState = event.getData()
+    print newState
+    if newState <> invalid
+        if newState = "finished"
+            ReturnToGrid()
+        end if
+    end if
 end function
 
