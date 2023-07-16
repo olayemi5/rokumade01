@@ -1,9 +1,5 @@
-' ********** Copyright 2020 Roku Corp.  All Rights Reserved. **********
 
-' Note that we need to import this file in MainLoaderTask.xml using relative path.
 sub Init()
-    ' set the name of the function in the Task node component to be executed when the state field changes to RUN
-    ' in our case this method executed after the following cmd: m.contentTask.control = "run"(see Init method in MainScene)
     m.top.functionName = "GetContent"
 end sub
 
@@ -58,11 +54,11 @@ function GetItemData(video as Object) as Object
     item.title = video.title
     item.releaseDate = video.releaseDate
     item.id = video.id
-
     if video.content <> invalid
         ' populate length of content to be displayed on the GridScreen
         item.length = video.content.duration
         item.videoUrl = video.content.videos[0].url
+        item.videoType = video.content.videos[0].videoType
     end if
     return item
 end function

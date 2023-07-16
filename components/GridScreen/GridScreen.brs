@@ -55,7 +55,33 @@ sub onRowItemSelectedChanged()
     focusedIndex = m.rowList.rowItemFocused ' get position of focused item
     row = m.rowList.content.GetChild(focusedIndex[0]) ' get all items of row
     item = row.GetChild(focusedIndex[1]) ' get focused item
+    
+    videocontent = createObject("RoSGNode", "ContentNode")
 
-    m.okClickCheckLabel.text = item.title + " has been clicked"
+    videocontent.title = item.title
+    videocontent.streamformat = item.videoType
+    videocontent.url = item.videoUrl
+      
+    m.videoNode.content = videocontent
+    m.videoNode.visible = true
+    m.videoNode.setFocus(true)
+
+    m.videoNode.control = "play"
 end sub
+
+function onKeyEvent(key as String, press as Boolean) as Boolean
+  handled = false
+  if press then
+    if (key = "back") then
+      m.videoNode.visible = false
+      videocontent = createObject("RoSGNode", "ContentNode")
+      m.videoNode.content = videocontent
+      m.rowList.SetFocus(true)
+      handled = true
+    else
+      handled = true
+    end if
+  end if
+  return handled
+end function
 
