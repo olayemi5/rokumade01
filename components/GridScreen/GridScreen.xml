@@ -33,6 +33,7 @@
       showRowLabel="[true]"
       rowFocusAnimationStyle="floatingfocus"
     />
-        <Video visible="false" id="campaignVideoNode" />
+    
+    <Video contentIsPlaylist="true" visible="false" id="campaignVideoNode" />
     </children>
 </component>

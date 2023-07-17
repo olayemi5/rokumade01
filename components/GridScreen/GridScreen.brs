@@ -19,23 +19,80 @@ sub Init()
     m.rowList.ObserveField("rowItemFocused", "OnItemFocused")
     m.rowList.ObserveField("rowItemSelected", "onRowItemSelectedChanged")
     m.videoNode.ObserveField("state", "onVideoStateChanged")
-
+    m.isRunned = false
 end sub
 
-sub OnItemFocused() ' invoked when another item is focused
-    focusedIndex = m.rowList.rowItemFocused ' get position of focused item
-    row = m.rowList.content.GetChild(focusedIndex[0]) ' get all items of row
-    item = row.GetChild(focusedIndex[1]) ' get focused item
-    ' update description label with description of focused item
-    m.descriptionLabel.text = item.description
-    ' update title label with title of focused item
-    m.titleLabel.text = item.title
-    ' adding length of playback to the title if item length field was populated
-    if item.length <> invalid
-        m.titleLabel.text += " | " + GetTime(item.length)
-    end if
+function CreatePlaylistContentNode(playlist)
+   
+    contentNode = CreateObject("roSGNode", "ContentNode")
+
+    for each video in playlist
+        print video.streamformat
+        videocontent = CreateObject("roSGNode", "ContentNode")
+        videocontent.url = video.url
+        videocontent.title = video.title
+        videocontent.streamformat = video.streamformat
+
+        contentNode.AppendChild(videocontent)
+    end for
+
+    m.videoNode.content = contentNode
+    m.videoNode.visible = true
+    m.videoNode.contentIsPlaylist = true
+    m.videoNode.setFocus(true)
+    m.videoNode.control = "play"
     
-    m.videoUrl.text = "URL " + item.videoUrl
+end function
+
+sub OnItemFocused() ' invoked when another item is focused
+    if m.isRunned = false
+        focusedIndex = m.rowList.rowItemFocused ' get position of focused item
+        row = m.rowList.content.GetChild(focusedIndex[0]) ' get all items of row
+
+        playlist = []
+    
+        if row.getChildCount() > 0
+            
+            for i = 0 To row.getChildCount() - 1
+                item = {}
+                item = row.GetChild(i)
+                if item <> invalid 
+                    videoData = {}
+                    videoData.title = item.title
+                    videoData.streamformat = item.videoType
+                    videoData.url = item.videoUrl
+
+                    playlist.push(videoData)
+                end if
+
+                
+            end for
+
+            ' 
+            ' m.videoNode.content = CreatePlaylistContentNode(playlist)
+            ' m.videoNode.visible = true
+            ' m.videoNode.setFocus(true)
+
+            ' m.videoNode.control = "play"
+        end if
+
+        ' item = row.GetChild(focusedIndex[1]) ' get focused item
+        '  ' update description label with description of focused item
+        ' m.descriptionLabel.text = item.description
+        ' ' ' update title label with title of focused item
+        ' m.titleLabel.text = item.title
+        ' ' ' adding length of playback to the title if item length field was populated
+        ' if item.length <> invalid
+        '     m.titleLabel.text += " | " + GetTime(item.length)
+        '  end if
+        
+        ' m.videoUrl.text = "URL " + item.videoUrl
+
+        if playlist.Count() > 0 then 
+            CreatePlaylistContentNode(playlist)
+        end if
+    end if
+    m.isRunned = true
 end sub
 
 ' this method convert seconds to mm:ss format
@@ -52,9 +109,8 @@ function GetTime(length as Integer) as String
 end function
 
 sub onRowItemSelectedChanged()
-    print "selected"
-
-    focusedIndex = m.rowList.rowItemFocused ' get position of focused item
+    focusedIndex = m.rowList.rowItemFocused
+   ' get position of focused item
     row = m.rowList.content.GetChild(focusedIndex[0]) ' get all items of row
     item = row.GetChild(focusedIndex[1]) ' get focused item
     
@@ -96,7 +152,17 @@ function onVideoStateChanged(event as Object)
     print newState
     if newState <> invalid
         if newState = "finished"
-            ReturnToGrid()
+            print newState
+            m.videoNode.nextContentIndex = m.videoNode.contentIndex  + 1
+            m.videoNode.control = "play"
+        end if
+        if newState =  "error"
+            errorStr = m.videoNode.errorStr
+            errorInfo = m.videoNode.errorInfo
+
+            print errorStr
+            print errorInfo
+
         end if
     end if
 end function

@@ -42,6 +42,7 @@ sub GetContent()
 end sub
 
 function GetItemData(video as Object) as Object
+    playList = []
     item = {}
     ' populate some standard content metadata fields to be displayed on the GridScreen
     ' https://developer.roku.com/docs/developer-program/getting-started/architecture/content-metadata.md
